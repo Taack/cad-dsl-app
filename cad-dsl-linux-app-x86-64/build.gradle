@@ -1,0 +1,64 @@
+plugins {
+    id 'groovy'
+    id 'application'
+}
+
+group = 'org.taack'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    jmodLib
+}
+
+dependencies {
+    implementation 'org.apache.groovy:groovy:5.0.0'
+    jmodLib 'org.taack.cad:cad-dsl:0.1@jmod'
+    implementation 'org.taack.cad:cad-dsl:0.1'
+}
+
+tasks.register('extractNativesFromJmod', Copy) {
+    group = 'build'
+    description = 'Extract .so/.dll from JMOD File'
+
+    def jmodFile = configurations.jmodLib.singleFile
+
+    def outputDir = layout.buildDirectory.dir("extracted-libs")
+
+    inputs.file(jmodFile)
+    outputs.dir(outputDir)
+
+    from zipTree(jmodFile)
+
+    include 'lib/**'
+
+    eachFile { details ->
+        details.path = details.name
+    }
+    includeEmptyDirs = false
+
+    into outputDir
+}
+
+application {
+    mainClass = 'org.taack.Main'
+}
+
+if (tasks.findByName('run')) {
+    tasks.named('run').configure { dependsOn 'extractNativesFromJmod' }
+}
+
+tasks.named('run') {
+
+    dependsOn 'extractNativesFromJmod'
+    def libPath = layout.buildDirectory.dir("extracted-libs").get().asFile.absolutePath
+    systemProperty "java.library.path", libPath
+
+    doFirst {
+        println "Java Library Path define on : ${libPath}"
+    }
+}

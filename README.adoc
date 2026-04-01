@@ -1,0 +1,22 @@
+= CAD-DSL App
+
+This repository contains app for each platform.
+
+Currently only linux on x86-64 is supported.
+
+
+== Linux x86-64
+
+OCCT / GLEW librairies must be installed.
+
+.Debian
+[source,bash]
+----
+sudo apt-get install libocct-ocaf-7.8 libocct-modeling-algorithms-7.8 libocct-visualization-7.8 libocct-foundation-7.8 libocct-draw-7.8 libocct-data-exchange-7.8
+----
+
+.Arch
+[source,bash]
+----
+yay -S opencascade
+----
